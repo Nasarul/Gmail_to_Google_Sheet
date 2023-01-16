@@ -1,0 +1,129 @@
+function myFunction( ){
+Logger.log("I am tasting");
+}
+
+function parse_email( ) {
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Sheet1");
+  var label = GmailApp.getUserLabelByName("youthict");
+  var threads = label.getThreads();
+
+  for (var i= 0; i<threads.length; i++){
+    var messages = threads[i].getMessages();
+
+      for(var j=0; j<messages.length; j++){
+        var dat = messages[j].getDate();
+        var from = messages[j].getFrom();
+        var sub = messages[j].getSubject();
+        var pmsg = messages[j].getPlainBody();
+        var email = messages[j].getReplyTo();
+        //var name = messages[j].getBody();
+
+        var name = ""
+        var email = ""
+        var phone = ""
+        var fName = ""
+        var mName = ""
+        var dob = ""
+        var district = ""
+        var thana = ""
+        var course = ""
+        var bKid = ""
+
+        Logger.log(pmsg);
+
+            if (pmsg.indexOf("Date:")>0){
+                var end = pmsg.substring(pmsg.indexOf("Date:")+6, pmsg.length);
+                dat = end.substring(0, end.indexOf("\n"));
+                } 
+
+            if (pmsg.indexOf("Name:")>0){
+                var end = pmsg.substring(pmsg.indexOf("Name:")+6, pmsg.length);
+                name = end.substring(0, end.indexOf("\n"));
+                }
+                
+            if (pmsg.indexOf("Phone:")>0){
+                var end = pmsg.substring(pmsg.indexOf("Phone:")+7,pmsg.length);
+                phone = end.substring(0, end.indexOf("\n"));
+                if (phone.indexOf('(') <0 && phone.length > 0){
+                  phone = format_phone(phone);
+                }
+                else (phone = 'No Number');
+                  phone = format_phone(phone);
+                }
+
+              if (pmsg.indexOf("Email:")>0){
+                var end = pmsg.substring(pmsg.indexOf("Email:")+7,pmsg.length);
+                email = end.substring(0, end.indexOf("\n"));
+                }
+
+              if (pmsg.indexOf("Father's Name:")>0){
+                var end = pmsg.substring(pmsg.indexOf("Father's Name:")+15,pmsg.length);
+                fName = end.substring(0, end.indexOf("\n"));
+                }
+
+              if (pmsg.indexOf("Mother's Name:")>0){
+                var end = pmsg.substring(pmsg.indexOf("Mother's Name:")+15,pmsg.length);
+                mName = end.substring(0, end.indexOf("\n"));
+                }
+
+              if (pmsg.indexOf("Date of Birth:")>0){
+                var end = pmsg.substring(pmsg.indexOf("Date of Birth:")+15,pmsg.length);
+                dob = end.substring(0, end.indexOf("\n"));
+                }
+
+              if (pmsg.indexOf("District:")>0){
+                var end = pmsg.substring(pmsg.indexOf("District:")+10,pmsg.length);
+                district = end.substring(0, end.indexOf("\n"));
+                }
+
+              if (pmsg.indexOf("Thana:")>0){
+                var end = pmsg.substring(pmsg.indexOf("Thana:")+7,pmsg.length);
+                thana = end.substring(0, end.indexOf("\n"));
+                }
+
+              if (pmsg.indexOf("Course:")>0){
+                var end = pmsg.substring(pmsg.indexOf("Course:")+8,pmsg.length);
+                course = end.substring(0, end.indexOf("\n"));
+                }
+
+              if (pmsg.indexOf("Bkash Transaction ID:")>0){
+                var end = pmsg.substring(pmsg.indexOf("Bkash Transaction ID:")+22,pmsg.length);
+                bKid = end.substring(0, end.indexOf("\n"));
+                }
+
+              Logger.log("Name:"+ name);
+              var status = "approved"
+              sheet.appendRow([status, dat, name, phone, email, fName, mName, dob, district, thana, course, bKid]);
+      }
+
+    threads[i].removeLabel(label);
+    threads[i].addLabel(GmailApp.getUserLabelByName("youthict"));
+    threads[i].moveToArchive();
+  }
+  sort ();
+}
+
+function format_phone(){
+  var num = sheet.appendRow(phone);
+  num = num.replace(/[+]+/g, " ");
+  num = + num.substring(0,4) + num.substring(4,10);
+  //num = "(" + num.substring(0,4) + ")" + num.substring(4,8) + '-' + num.substring(0,11);
+  //num = num.replace(/\D+/g, '').replace(/(\d{1})(\d{3})(\d{3})(\d{4})/, '+$1 ($2) $3-$4');
+  //num = "+88" num.substring(0,3) + num.substring(3,6) + '-' +num.substring()
+return num;
+}
+
+function sort(){
+var sortFinst = 2;
+var sortFirstAsc = false;
+var sortSecond = 3;
+var sortSecondAsc =false;
+
+var headerRows = 1;
+var sheet = SpreadsheetApp.getActive().getSheetByName("Sheet1");
+var range = sheet.getRange(headerRows+1, 1, sheet.getMaxRows()-headerRows, sheet.getLastColumn());
+//range.sort([{column: sortFinst, ascending: sortFirstAsc}]);
+range.sort([{column: sortFinst, ascending: sortFirstAsc}, {column: sortSecond, ascending: sortSecondAsc}]);
+}
